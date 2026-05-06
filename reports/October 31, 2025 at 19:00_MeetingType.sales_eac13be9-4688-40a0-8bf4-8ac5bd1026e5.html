@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Call Analysis: Контроль довжини труб на виробництві: computer vision замість рулетки (discovery/qualification)</title>
+</head>
+<body style="margin:0;padding:0;background:#F5F8FF;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F8FF;padding:30px 0;">
+<tr><td align="center">
+
+<table width="720" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(66,133,244,0.08);">
+
+    <!-- Header -->
+    <tr>
+        <td style="background:#4285F4;padding:28px 32px;">
+            <div style="font-family:Arial,sans-serif;color:#ffffff;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;opacity:0.85;margin-bottom:6px;">
+                Data Science UA · Call Analysis
+            </div>
+            <div style="font-family:Arial,sans-serif;color:#ffffff;font-size:22px;font-weight:bold;line-height:1.3;">
+                Контроль довжини труб на виробництві: computer vision замість рулетки (discovery/qualification)
+            </div>
+            <div style="font-family:Arial,sans-serif;color:#ffffff;font-size:12px;opacity:0.8;margin-top:8px;">
+                October 31, 2025 at 19:00 · 38 min · SALES
+            </div>
+        </td>
+    </tr>
+
+    <!-- TL;DR -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">
+                TL;DR
+            </div>
+            <div style="font-family:Arial,sans-serif;color:#434343;font-size:14px;line-height:1.6;margin-bottom:16px;">
+                Дил-стан середній/помірний: є чіткий pain, on-prem обмеження й бюджетний діапазон, але відсутні критичні MEDDIC елементи (економічний покупець, рішення/критерії) та є ризик по точності ±1 мм. SPIN виконано непогано: ситуація/проблема окреслені, але імплікативність (бізнес-наслідки) та Need-Payoff майже не «продавлені». Найбільша проблема — відсутність власного ground truth ближчого за рулетку + невизначеність досяжності ±1 мм без додаткового hardware/ресурсу. Найважливіша дія — до п’ятниці отримати SOW на discovery (5–7 тис. €) і одночасно запланувати техдзвінок з IT для підтвердження MES API та інфраструктури GPU/впровадження on-prem.
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="33%" style="padding-right:10px;vertical-align:top;">
+                        <div style="background:#F5F8FF;padding:14px;border-radius:6px;">
+                            <div style="font-family:Arial,sans-serif;color:#8A94A6;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Deal Health</div>
+                            <div style="font-family:Arial,sans-serif;color:#434343;font-size:13px;line-height:1.4;">Помірно здоровий: є discovery-план, бюджетний діапазон, конкретний POC/pilot/rollout та інтеграційні вимоги. Зберігається ризик точності ±1 мм та відсутність підтвердженого decision process/економічного покупця.</div>
+                        </div>
+                    </td>
+                    <td width="34%" style="padding:0 5px;vertical-align:top;">
+                        <div style="background:#F5F8FF;padding:14px;border-radius:6px;">
+                            <div style="font-family:Arial,sans-serif;color:#8A94A6;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Biggest Problem</div>
+                            <div style="font-family:Arial,sans-serif;color:#434343;font-size:13px;line-height:1.4;">Ключовий ризик — технічна валідація вимірювань: ground truth «краще за рулетку» треба створити/забрати з інженерного відділу, а досягнення ±1 мм може впасти до ±2–3 мм або вимагати апгрейду камер (15–25 тис. €).</div>
+                        </div>
+                    </td>
+                    <td width="33%" style="padding-left:10px;vertical-align:top;">
+                        <div style="background:#F5F8FF;padding:14px;border-radius:6px;">
+                            <div style="font-family:Arial,sans-serif;color:#8A94A6;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Top Next Action</div>
+                            <div style="font-family:Arial,sans-serif;color:#434343;font-size:13px;line-height:1.4;">Підготувати та надіслати SOW до п’ятниці + забронювати (на наступний тиждень) технічний дзвінок з IT-командою для підтвердження MES API (REST vs OPC-UA), он-прем deployment і доступності GPU/T4 та процесу моніторингу точності.</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    
+    <!-- Scorecard -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                Scorecard · Overall 5/10
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                <tr style="background:#F5F8FF;">
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;">Dimension</th>
+                    <th style="padding:10px 12px;text-align:center;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;width:80px;">Score</th>
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;">Comment</th>
+                </tr>
+                
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Discovery Depth</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            7/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Є конкретика по потоку (2400 труб/зміна, 2 інспектори), поточній похибці (±2–3 мм) та кейсі претензії (180 тис. €). Але мало даних про вплив на throughput/відбраковку, статистику помилок, причини drift, та поточні QC-процедури.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Decision Process Clarity</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            3/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Не з’ясовано: хто економічний покупець/власник CAPEX, як приймається рішення, які критерії успіху, хто підписує SOW/контракт і коли.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Budget Signals</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            6/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Просили діапазон; озвучено discovery 5–7 тис. € і R&D 60–90 тис. € + ліцензії/підтримка, але немає підтвердження внутрішнього budget owner та очікуваної моделі фінансування (CAPEX/OPEX).</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Competition Awareness</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            2/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Жодної згадки про конкурентів/альтернативи (внутрішня розробка, інші CV/метрологія підрядники, апгрейд обладнання) і як вони порівнюють.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Value Articulation</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            6/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Прив’язка до бізнес-наслідків є через претензію 180 тис. €, але rep не витягнув повний ROI-обсяг (frequency помилок, частка браку/переробок) і не зв’язав це з окупністю в цифрах.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Next Step Quality</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#34A853;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            8/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Наступний крок конкретний: SOW до п’ятниці, плюс технічний дзвінок з IT наступного тижня. Scope discovery 2 дні та POC/pilot/rollout деталізовані.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Rapport & Trust</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            7/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Реципієнт задає точні технічні питання, відповіді узгоджені; rep визнає обмеження (відсутність калібрування, GPU/аналітика) і пропонує реалістичну спільну калібровку on-site.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Listening Ratio</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            5/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Rep ставить багато уточнень, але в середині переходить у план/пічи (workflow, integration). Точна частка не вимірюється, але реп у другій половині говорить більше.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">SPIN Execution</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            4/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">SPIN є, але імплікація та Need-Payoff майже відсутні: є проблема (похибка/претензія), однак не розкрито наслідки в процесах/витратах щодня/щомісяця, і клієнт не сформулював бажаний payoff.</td>
+        </tr>
+    
+            </table>
+            <div style="margin-top:14px;padding:12px 16px;background:#F5F8FF;border-left:4px solid #4285F4;border-radius:4px;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-style:italic;">
+                <b>Overall:</b> Є сильний технічний discovery і план, але критично не вистачає qualification (MEDDIC/decision/metrics) та бізнес-імплікації для прискорення купівлі.
+            </div>
+        </td>
+    </tr>
+
+    <!-- SPIN -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                SPIN Analysis · Overall 4/10
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                <tr style="background:#F5F8FF;">
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;width:130px;">Type</th>
+                    <th style="padding:10px 12px;text-align:center;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;width:80px;">Score</th>
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;">Critical Gaps</th>
+                </tr>
+                
+                
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Situation</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            6/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">
+            • Не прояснено: поточний процес валідації/калібрування рулетки, як фіксуються помилки (частота/критичність), рівень відбраковки/переробки, і які є стандарти/регуляторні вимоги до metrology.<br>• Не прояснено: чи є можливість обчислювати length компенсуючі фактори (температура/деформація), і чи потрібне вимірювання довжини «нетто/брутто».<br>• Не уточнено: як інспектори приймають рішення (thresholds), і чи зміниться workflow після AI. <br>• Не уточнено: чи є інші контрольні точки (діаметр, straightness) і потенціал масштабування.
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Problem</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            5/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">
+            • Не виявлено: основна причина помилок рулетки (людський фактор, позиціонування труби, шум/параллакс, швидкість лінії, обмеження рулетки).<br>• Не з’ясовано: чи є внутрішні «near miss»/перемірювання (наприклад, частина труб перезнімається або відкладається).<br>• Не уточнено: чи довжина використовується для подальших операцій/маркування, де саме cost of error максимальний (scrap vs rework vs customer claim).
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Implication</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            2/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">
+            • Не розкрито: частота таких претензій та очікувана економія/ROI.<br>• Не проговорено: вплив на планування/throughput/повторні операції/репутаційні ризики.<br>• Не з’ясовано: які downstream клієнтські SLA можуть порушуватись через довжину.
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Need-Payoff</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            2/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">
+            • Не отримано явного «для чого» (go/no-go) від клієнта: що саме означатиме успіх: % зниження помилок, ppm, скорочення claims, SLA.<br>• Не сформульовано internal benefits для champion: зменшення навантаження на інспекторів, менше ручних операцій, аудит-trail для quality.
+            </td>
+        </tr>
+    
+            </table>
+            <div style="margin-top:14px;padding:12px 16px;background:#F5F8FF;border-left:4px solid #4285F4;border-radius:4px;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-style:italic;">
+                SPIN частково виконано (S/P є), але критично провалено Implication і Need-Payoff — rep перейшов у техплан/скоуп до того, як бізнес-вигода стала особистою для buyer.
+            </div>
+        </td>
+    </tr>
+
+    <!-- MEDDIC -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                MEDDIC Qualification · Overall 4/10
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                <tr style="background:#F5F8FF;">
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;width:160px;">Pillar</th>
+                    <th style="padding:10px 12px;text-align:center;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;width:100px;">Status</th>
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;">Gap</th>
+                </tr>
+                
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Metrics</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+                <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;font-family:Arial,sans-serif;">
+                    partial
+                </span>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Немає конкретних чисел для POC acceptance: RMSE/bias, % труб в допуску, тривалість оцінки, baseline measurement протокол.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Economic Buyer</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+                <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;font-family:Arial,sans-serif;">
+                    missing
+                </span>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Не ідентифіковано Economic Buyer (C-level/VP Quality/COO/Procurement) і їхні KPI.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Decision Criteria</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+                <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;font-family:Arial,sans-serif;">
+                    partial
+                </span>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Не зафіксовано формальні критерії успіху та пороги прийнятності; не визначено, чи достатньо ±2–3 мм якщо зникнуть претензії.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Decision Process</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+                <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;font-family:Arial,sans-serif;">
+                    weak
+                </span>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Немає інформації про стадії approval, хто підписує, дедлайни закупівель і procurement процес.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Identify Pain</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+                <span style="display:inline-block;padding:3px 10px;background:#34A853;color:#ffffff;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;font-family:Arial,sans-serif;">
+                    strong
+                </span>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Немає регулярної статистики: frequency/обсяг браку/вартість на місяць/рік.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Champion</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+                <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;font-family:Arial,sans-serif;">
+                    partial
+                </span>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Не підтверджено, чи він може “продавити” бюджет і рішення в своїй організації; не визначено його KPI/статус у decision committee.</td>
+        </tr>
+    
+            </table>
+        </td>
+    </tr>
+
+    <!-- Missed questions -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                Missed Questions
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Хто є економічним покупцем і хто прийматиме рішення про CAPEX/OPEX, коли саме?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[meddic]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Без підтвердженого Economic Buyer і Decision timing ризик зависання після discovery.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> Після озвучення бюджету: «Грубо… 60-90 тисяч…» або коли обговорювали SOW.</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Які критерії успіху для POC/pilot: точність (мм), SLA/throughput, % труб у межах допуску, що саме має довести тест?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[meddic]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Вони просили ±1 мм, але критерії go/no-go не визначені. Це must-have перед фіналізацією оцінки.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> Коли прозвучало: «А якщо результати POC покажуть, що ±1 мм недосяжна…».</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Яка поточна частота помилок/претензій через довжину за 3–6 місяців, і який середній cost per incident?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[implication]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Rep не закріпив регулярну вартість проблеми; без цього важче обґрунтувати інвестиції та пріоритезувати.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> Одразу після: «Останній випадок коштував… 180 тисяч євро.»</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Чи є інші варіанти, які ви розглядаєте: апгрейд камер (4K/стабілізоване кріплення), інші CV-вендори, чи внутрішня розробка/метрологічне рішення?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[meddic]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Competition/alternatives не виявлені — rep може будувати план, який не проходить внутрішнє порівняння.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> На етапі обговорення сценарію «якщо ±1 мм недосяжна…».</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Як саме MES приймає attribute: що є API/endpoint, як формується auth, які поля/формат, і хто технічно відповідальний за інтеграцію?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[meddic]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Без деталізації интеграційних вимог і owner інтеграція може зірвати POC.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> Після: «REST API?» і «Куди саме?».</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Який політик/процес безпеки для on-prem: вимоги до серверів, журналювання, ретеншн, ІБ-апрув?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[meddic]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> On-prem + defense замовлення можуть додати прихований цикл погоджень.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> Після: «Тільки on-prem. … не можна виносити дані з контуру».</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Чи є у вас задокументовані вимоги до metrology/аудит trail (наприклад, калібрувальні звіти, версії моделей, traceability)?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[need_payoff]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Потрібно показати, як рішення пройде аудит і стане “контрольованим процесом”.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> Після обговорення калібровки з checkerboard/ChArUco.</div>
+            </td>
+        </tr>
+    
+            </table>
+        </td>
+    </tr>
+
+    <!-- Objections -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                Objections Analysis
+            </div>
+            
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-radius:6px;margin-bottom:10px;">
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">"Немає ground truth кращого за рулетку для валідації ±1 мм."</div>
+            <div style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-bottom:10px;">trust</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Handled:</b> Dmytro запитав: «Як ви валідуватимете ±1 мм…» і потім запропонував ground truth: «взяти 50-100 труб… лазерним далекоміром або digital caliper»; клієнт підтвердив наявність далекоміра в інженерному відділі.</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Should have been:</b> Варто одразу узгодити: кого саме просить клієнт виділити на вимірювання, де/коли брати 50–100 труб, як зберігати traceability, і як саме буде визначатися “accuracy metric” (bias vs RMSE).</div>
+            <div style="margin-top:8px;padding:10px;background:#F5F8FF;border-left:3px solid #4285F4;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;">«Ок, щоб не було “віри на слово”: пропоную зафіксувати в SOW metric — bias (середнє відхилення) та RMSE. Ми підготуємо протокол відбору 50–100 труб і погодимо з вашою якістю час/місце вимірів далекоміром, щоб це було прийнятно для аудиту.»</div>
+        </div>
+    
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-radius:6px;margin-bottom:10px;">
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">"±1 мм може бути недосяжним на їх обладнанні / можливий degradation моделі (drift)."</div>
+            <div style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-bottom:10px;">product_maturity</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Handled:</b> Rep озвучив 2 сценарії: ±2–3 мм → сенс падає, або апгрейд камер 4K зі стабілізованим mounting (+15–25 тис. €). Також запропонував dashboard і моніторинг точності.</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Should have been:</b> Треба зафіксувати в SOW “go/no-go” умови та кому належить decision щодо додаткового hardware (owner, бюджет).</div>
+            <div style="margin-top:8px;padding:10px;background:#F5F8FF;border-left:3px solid #4285F4;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;">«Давайте узгодимо decision rules: якщо POC дає RMSE > X або bias > Y протягом Z днів — або ми переходимо на апгрейд камер, або закриваємо без rollout. Це захистить і вас, і нас від непотрібних циклів.»</div>
+        </div>
+    
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-radius:6px;margin-bottom:10px;">
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">"Невідомий MES API (REST vs OPC-UA) і інтеграційні залежності."</div>
+            <div style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-bottom:10px;">competition</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Handled:</b> Dmytro запитав про REST/OPC-UA; клієнт не знає і погодився уточнити з IT. Призначили техдзвінок з IT.</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Should have been:</b> Потрібно вимагати документ/список endpointів і auth scope до discovery старту (а не після).</div>
+            <div style="margin-top:8px;padding:10px;background:#F5F8FF;border-left:3px solid #4285F4;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;">«Щоб POC не зупинився на інтеграції, давайте попросимо IT надати: (1) auth механізм, (2) list of endpoints для запису attribute, (3) payload schema. Це за 1–2 дні до калібровки.»</div>
+        </div>
+    
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-radius:6px;margin-bottom:10px;">
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">"Обмеження на deployment: тільки on-prem через оборонні замовлення."</div>
+            <div style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-bottom:10px;">change_management</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Handled:</b> Rep прийняв вимогу й уточнив compute resources; запропонував використання T4 для inference та перевірку завантаження existing аналітики.</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Should have been:</b> Додати ще запит про ІБ-погодження/встановлення (можливість агента/контейнера), і про доступність потрібного сервера в потрібній зоні (DMZ/production).</div>
+            <div style="margin-top:8px;padding:10px;background:#F5F8FF;border-left:3px solid #4285F4;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;">«Щоб укластися в он-прем контур, нам потрібно знати: чи можна ставити контейнер/agent, в якій зоні (виробництво/DMZ), і який timeline ІБ-погодження. Від цього залежить старт POC.»</div>
+        </div>
+    
+        </td>
+    </tr>
+
+    <!-- Next actions -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                Recommended Next Actions
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">1</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Надіслати SOW на discovery (5–7 тис. €) до п’ятниці з чіткими acceptance metrics та протоколом ground truth (50–100 труб, bias/RMSE, формат звіту).</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Наступний крок уже обіцяний; без SOW-метрик з’являється ризик спору про ±1 мм і затримки POC.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ до: п’ятниця (крайній дедлайн)</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">2</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Організувати технічний дзвінок з IT (REST API vs OPC-UA, auth, endpoint payload, on-prem deployment, доступність серверів/T4 та зони безпеки) на наступний тиждень.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Інтеграція MES і compute/on-prem — найбільші “невідомі”; IT owner потрібен до старту discovery.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ до: наступного тижня (призначити дату впродовж 24–48 год)</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">3</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Запросити від клієнта: документацію MES API (або конкретні відповіді IT), схему attribute для довжини, та приклад payload/ID труб з MES.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Зменшує шанс, що POC зупиниться на невідомих інтеграційних деталях.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ до: старту discovery (або мінімум за 3–5 днів до калібровки)</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">4</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Підготувати “accuracy risk plan” для сценарію ±2–3 мм vs apгрейд 4K+mounting і зафіксувати decision rules (go/no-go, who pays).</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Rep вже згадував +15–25 тис. €; без formal decision rules це стане dead-end.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ в рамках SOW (до п’ятниці)</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">5</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Під час discovery додати коротку сесію з Quality/Production owners: статистика претензій/повторних вимірів за 3–6 місяців, процеси контролю та аудіт-трейл вимірювань.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Потрібна business justification для економічного покупця і для формалізації ROI/impact.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ під час фази discovery (2 дні)</div>
+            </td>
+        </tr>
+    
+            </table>
+        </td>
+    </tr>
+
+    <!-- Follow-up email draft -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                Follow-up Email Draft
+            </div>
+            <div style="background:#F5F8FF;border-radius:6px;padding:18px 20px;">
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b>Subject:</b></div>
+                <div style="font-family:Arial,sans-serif;font-size:14px;color:#434343;font-weight:bold;margin-bottom:14px;">Підсумок: discovery план на computer vision для довжини труб + SOW до п’ятниці</div>
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;white-space:pre-wrap;">Володимире, дякую за час. Ми зафіксували вашу задачу: замінити вимір довжини після різання з рулетки (±2–3 мм, помилки → претензії; останній кейс ~180 тис. €) на computer vision з ціллю ±1 мм.
+
+Ключові ризики, які закладемо в discovery: (1) точність через ground truth — 50–100 труб міряємо лазерним далекоміром/цільовим еталоном, (2) on-prem deployment та інтеграцію в Critical Manufacturing MES (потрібно підтвердити REST API/endpoint), (3) калібровка 3 камер під вашу лінію (ChArUco/checkerboard).
+
+Я підготую SOW на discovery (5–7 тис. €) і надішлю до п’ятниці. Запропоную також техдзвінок з вашою IT-командою на наступний тиждень. </div>
+            </div>
+        </td>
+    </tr>
+
+    <!-- Footer -->
+    <tr>
+        <td style="background:#F5F8FF;padding:20px 32px;text-align:center;">
+            <div style="font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;">
+                Generated by AI Call Analyst · <span style="color:#4285F4;font-weight:bold;">Data Science UA</span>
+            </div>
+            <div style="font-family:Arial,sans-serif;font-size:10px;color:#8A94A6;margin-top:4px;">
+                Participants: Volodymyr Kravchenko, Andriy Kovalenko, Dmytro Sirenko
+            </div>
+        </td>
+    </tr>
+
+</table>
+
+</td></tr>
+</table>
+</body>
+</html>

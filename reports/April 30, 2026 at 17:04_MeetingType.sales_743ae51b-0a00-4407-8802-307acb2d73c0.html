@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Call Analysis: AI implementation discovery – Digital Advisor → POC (DBForge)</title>
+</head>
+<body style="margin:0;padding:0;background:#F5F8FF;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F8FF;padding:30px 0;">
+<tr><td align="center">
+
+<table width="720" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(66,133,244,0.08);">
+
+    <!-- Header -->
+    <tr>
+        <td style="background:#4285F4;padding:28px 32px;">
+            <div style="font-family:Arial,sans-serif;color:#ffffff;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;opacity:0.85;margin-bottom:6px;">
+                Data Science UA · Call Analysis
+            </div>
+            <div style="font-family:Arial,sans-serif;color:#ffffff;font-size:22px;font-weight:bold;line-height:1.3;">
+                AI implementation discovery – Digital Advisor → POC (DBForge)
+            </div>
+            <div style="font-family:Arial,sans-serif;color:#ffffff;font-size:12px;opacity:0.8;margin-top:8px;">
+                April 30, 2026 at 17:04 · 3357 min · SALES
+            </div>
+        </td>
+    </tr>
+
+    <!-- TL;DR -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">
+                TL;DR
+            </div>
+            <div style="font-family:Arial,sans-serif;color:#434343;font-size:14px;line-height:1.6;margin-bottom:16px;">
+                Deal health: medium but not yet qualified—good alignment on use cases (TechWriting, docs review, some new-product scope), but key MEDDIC pillars (metrics, decision criteria, budget, economic buyer) are still fuzzy. SPIN execution quality: weak—rep didn’t drive urgency/implications for the pain and spent too long on technical debates without anchoring to business outcomes and decision process. Biggest problem: the prospect challenged the feasibility and ROI/quality tradeoffs (legacy context, hallucinations, production readiness) without the rep locking a measurable pilot and a crisp go/no-go. Most important next action: send a written pilot plan (2-week audit + 2–3 POCs) with success metrics, required inputs from their team, and a decision meeting date by end of next week.
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="33%" style="padding-right:10px;vertical-align:top;">
+                        <div style="background:#F5F8FF;padding:14px;border-radius:6px;">
+                            <div style="font-family:Arial,sans-serif;color:#8A94A6;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Deal Health</div>
+                            <div style="font-family:Arial,sans-serif;color:#434343;font-size:13px;line-height:1.4;">Medium—active collaboration, specific pilot direction (tech writing flow + legacy feasibility constraints), but missing budget/decision/economic buyer clarity and no confirmed scope/metrics for a paid pilot.</div>
+                        </div>
+                    </td>
+                    <td width="34%" style="padding:0 5px;vertical-align:top;">
+                        <div style="background:#F5F8FF;padding:14px;border-radius:6px;">
+                            <div style="font-family:Arial,sans-serif;color:#8A94A6;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Biggest Problem</div>
+                            <div style="font-family:Arial,sans-serif;color:#434343;font-size:13px;line-height:1.4;">No quantified success criteria and no defined decision process/budget for the go/no-go—discussion stayed at “what’s possible” vs “what we will measure and who signs.”</div>
+                        </div>
+                    </td>
+                    <td width="33%" style="padding-left:10px;vertical-align:top;">
+                        <div style="background:#F5F8FF;padding:14px;border-radius:6px;">
+                            <div style="font-family:Arial,sans-serif;color:#8A94A6;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Top Next Action</div>
+                            <div style="font-family:Arial,sans-serif;color:#434343;font-size:13px;line-height:1.4;">Within 24 hours, propose a concrete pilot/workshop plan with measurable KPIs (time-to-doc, cycle time, quality review pass rate, human-hours saved), name required stakeholders, and lock next decision meeting date before end of next week.</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    
+    <!-- Scorecard -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                Scorecard · Overall 4/10
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                <tr style="background:#F5F8FF;">
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;">Dimension</th>
+                    <th style="padding:10px 12px;text-align:center;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;width:80px;">Score</th>
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;">Comment</th>
+                </tr>
+                
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Discovery Depth</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            4/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">They discussed constraints deeply (legacy context, hallucinations, MD/docs, tech writing flow) but didn’t uncover quantified business pain beyond headcount/time/general performance questions.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Decision Process Clarity</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            3/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">They agreed on workshops and audit go-no-go by end of next week, but no named economic buyer, decision criteria, or formal approval path.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Budget Signals</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            2/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">No explicit budget confirmed; only earlier mention of 5 tracks at $5k each, with limited follow-up/confirmation.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Competition Awareness</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            1/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">No competitor or build-vs-buy comparison beyond general in-house expertise; no explicit alternatives/other vendors evaluated.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Value Articulation</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            5/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Rep connected to their desire to reduce tech writer load and improve time-to-market/quality, but didn’t tie to a quantified ROI/impact model for their DBForge org.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Next Step Quality</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            6/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Next steps (workshops per direction, audit, go-no-go by end of next week) are stated, but lack concrete outputs, owners, and dates for each workshop.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Rapport & Trust</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            6/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Cross-functional team presence; technical credibility via specific examples (POCs, RAG/MCP, docs/quality flow) and respectful back-and-forth.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Listening Ratio</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            5/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Lots of rep technical explanation; prospect challenged feasibility and priorities, but overall rep spoke significantly during solution framing.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">SPIN Execution</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            3/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">SPIN was not systematically executed—more feature/architecture talk than guided Situation→Problem→Implication→Need-Payoff.</td>
+        </tr>
+    
+            </table>
+            <div style="margin-top:14px;padding:12px 16px;background:#F5F8FF;border-left:4px solid #4285F4;border-radius:4px;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-style:italic;">
+                <b>Overall:</b> Brisk, technical, and collaborative—but missing the commercial qualification mechanics (metrics, decision criteria, budget, competition, ROI).
+            </div>
+        </td>
+    </tr>
+
+    <!-- SPIN -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                SPIN Analysis · Overall 3/10
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                <tr style="background:#F5F8FF;">
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;width:130px;">Type</th>
+                    <th style="padding:10px 12px;text-align:center;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;width:80px;">Score</th>
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;">Critical Gaps</th>
+                </tr>
+                
+                
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Situation</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            4/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">
+            • No structured inventory of current tech-writing workflow (inputs, review steps, cycle time, defect rate) before proposing a pilot.<br>• No baseline metrics for legacy/development flow beyond subjective ‘context’ and quality.
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Problem</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            3/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">
+            • Rep didn’t probe the root causes in their process (where delays occur—handoffs, reviews, tool access, data retrieval from DB) to prioritize the right pilot module.<br>• No explicit statement of business pain (cost of tech writer team, release slippage, rework, customer impact) captured as ‘problem’ for ROI modeling.
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Implication</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            2/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">
+            • No quantified implications: cost of tech writer headcount, opportunity cost, release delays, compounding rework cycles.<br>• No direct urgency trigger: what deadline or event forces action (e.g., upcoming release, scaling from N to M projects).
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Need-Payoff</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            3/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">
+            • No explicit articulation of what success looks like for the pilot and how it will influence the next procurement/rollout decision.<br>• No quantified willingness/ROI hypothesis from prospect (e.g., ‘save X hours/month’, ‘reduce cycle by Y%’).
+            </td>
+        </tr>
+    
+            </table>
+            <div style="margin-top:14px;padding:12px 16px;background:#F5F8FF;border-left:4px solid #4285F4;border-radius:4px;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-style:italic;">
+                SPIN was not applied as a disciplined qualification tool; it turned into technical Q&A and solution explanations without forcing quantified implications and prospect-owned need-payoff.
+            </div>
+        </td>
+    </tr>
+
+    <!-- MEDDIC -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                MEDDIC Qualification · Overall 4/10
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                <tr style="background:#F5F8FF;">
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;width:160px;">Pillar</th>
+                    <th style="padding:10px 12px;text-align:center;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;width:100px;">Status</th>
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;">Gap</th>
+                </tr>
+                
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Metrics</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+                <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;font-family:Arial,sans-serif;">
+                    partial
+                </span>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">No baseline for their tech writing/documentation cycle, quality pass rate, rework %, or release impact; promised “baseline/code quality” but not agreed in this call.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Economic Buyer</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+                <span style="display:inline-block;padding:3px 10px;background:#EA4335;color:#ffffff;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;font-family:Arial,sans-serif;">
+                    missing
+                </span>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Need identified economic buyer/signatory for budget approval.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Decision Criteria</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+                <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;font-family:Arial,sans-serif;">
+                    partial
+                </span>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">No explicit go/no-go criteria with measurable thresholds or timeline; decision criteria remain qualitative.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Decision Process</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+                <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;font-family:Arial,sans-serif;">
+                    partial
+                </span>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">No named attendees/committee, formal audit approval steps, or procurement timeline.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Identify Pain</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+                <span style="display:inline-block;padding:3px 10px;background:#34A853;color:#ffffff;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;font-family:Arial,sans-serif;">
+                    strong
+                </span>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Pain is articulated, but business impact (cost, SLA risk, rework) not quantified.</td>
+        </tr>
+    
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;">Champion</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+                <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;font-family:Arial,sans-serif;">
+                    partial
+                </span>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Need confirmation that Anton (or Oleksii) can champion internally and has influence over budget/priority setting.</td>
+        </tr>
+    
+            </table>
+        </td>
+    </tr>
+
+    <!-- Missed questions -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                Missed Questions
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Скільки релізів/змін коду і який обсяг документації у вас на місяць (кількість сторінок/файлів/feature docs)?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[meddic]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Unlocks volume-based ROI for tech writing automation and sizes the pilot scope.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> When Anton stated: “ми говоримо в основному про генерацію тексту… релізи” and Vic asked about the flow.</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Які конкретно критерії якості/конвенції для технічної документації (checklist) і хто їх затверджує?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[meddic]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Defines decision criteria and lets the rep map agent checks to acceptance tests.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> After Kostiantyn explained: “технічна документація завжди повинна виконувати певним умовам… конвеншені”.</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Хто є економічним покупцем і хто приймає рішення про бюджет/закупівлю?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[meddic]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Without an economic buyer, ‘go-no-go’ by next week is at risk and sales cycle stalls.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> When Anton said: “нам треба визначитись… go-no-go” and later “до кінець наступного тижня”.</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Який у вас бюджет/діапазон на цей напрям (аудит + POC + розширення) і чи є замороження/ліміт по кварталу?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[meddic]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Budget signal was not confirmed; multi-track pricing was mentioned but not validated.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> Early, after the prospect referenced 5 tracks at “вартість 5 тисяч доларів за кожен трек”.</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Які альтернативи ви розглядаєте зараз: внутрішня розробка, інші AI-вендори/агентні платформи, використання існуючих LLM tooling?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[meddic]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> No competition awareness means the rep can’t disarm ‘build it ourselves’ or differentiate properly.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> When Anton said they have expertise and want a partner for system implementation; before workshops.</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Що саме ви будете міряти як ‘quality’/ ‘performance’ у коді та документації (конкретні метрики: review pass rate, rework %, SLA, defect count)?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[meddic]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Decision criteria and ROI modeling depend on measurable outcomes.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> After Volodymyr asked: “В чому ви захочете міряти перформанс?” and before discussing time-to-market hypotheticals.</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Як виглядає поточний процес tech writing: від збору фактів (release notes/DB) до рев’ю та публікації (кроки/тайм/відповідальні)?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[situation]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Enables accurate pilot design and reduces scope risk.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> When Anton clarified what they generate (documentation, related to releases) and asked about POC coverage.</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Яка зараз середня тривалість циклу документації (cycle time) і скільки часу втрачається на пошук/збір даних vs написання?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[implication]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Turns automation into urgency and quantifies savings for go/no-go.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> Right after the discussion that tech writers are ‘too many’ and they want fewer headcount/greater senior efficiency.</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Які ‘deal-killers’ у вас для AI-driven development/techwriting (security/privacy, hallucinations, inability to assign responsibility, compliance)?</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;text-transform:uppercase;font-weight:bold;margin-bottom:4px;">[meddic]</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Procurement risks need explicit gating criteria to avoid sunk-cost pilots.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> When legacy feasibility risks were debated (“галюцинації… відповідальність”) and when they talked about anti-AI checkers.</div>
+            </td>
+        </tr>
+    
+            </table>
+        </td>
+    </tr>
+
+    <!-- Objections -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                Objections Analysis
+            </div>
+            
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-radius:6px;margin-bottom:10px;">
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">"Legacy code is too hard for agents due to context, hallucinations, and production readiness concerns."</div>
+            <div style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-bottom:10px;">change_management</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Handled:</b> The rep explained context issues and suggested smaller context modules, documentation/MD files, RAG, and human-in-the-loop: “Найголовніша проблема… це контекст” and “Human in the loop обов'язково має бути.”</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Should have been:</b> Acknowledge, then pin down a pilot boundary with risk controls: what parts of legacy are out of scope, what ‘success’ means (e.g., doc review only), and what failure mode would stop scaling. Example: “We’ll start with doc/review flow and ‘gold baseline’ mapping; legacy agent autonomy is out of scope until we hit X quality on review and X reduction in rework.”</div>
+            <div style="margin-top:8px;padding:10px;background:#F5F8FF;border-left:3px solid #4285F4;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;">“Розумію ризик контекст-спотворень і that no one is willing to ship autonomous legacy changes. Тому пропоную пілот без автономного рефакторингу: тільки агент-рев’ю та knowledge packaging на основі вашого baseline. Якщо quality pass rate і rework зменшуються на погоджений % — тоді обговорюємо наступний рівень.”</div>
+        </div>
+    
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-radius:6px;margin-bottom:10px;">
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">"Need training/setup to use AI effectively; prompts alone aren’t enough for systematic rollout."</div>
+            <div style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-bottom:10px;">stakeholder</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Handled:</b> Rep and prospect aligned that a partner is needed for system implementation: “ми хочемо злучити там партнера, який нам допоможе саме системним впровадженням.”</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Should have been:</b> Convert into a concrete onboarding/training plan with deliverables and owners (workshop → process map → agent spec → governance).</div>
+            <div style="margin-top:8px;padding:10px;background:#F5F8FF;border-left:3px solid #4285F4;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;">“Ок, тоді зафіксуймо: що саме вам потрібно в ‘systematic setup’ (process mapping, governance, templates, integrations). Ми пропонуємо 1 воркшоп + 1 воркстрім з вашими tech writers/engineering для створення agent specs; без цього пілот не стартує.”</div>
+        </div>
+    
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-radius:6px;margin-bottom:10px;">
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">"AI-generated documentation may be flagged by AI/anti-plagiarism checkers."</div>
+            <div style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-bottom:10px;">product_maturity</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Handled:</b> Prospect said they already handle AI detection in marketing; then they reframed focus to flow not passing checkers: “це питання… мені менше… хвилює… більше цікавлять сам флоу.” Rep then suggested that checks can be ‘tokens’/not run as such in the POC.</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Should have been:</b> Confirm whether compliance/anti-AI is a must-have for tech docs; propose success criteria around originality/compliance rather than ignoring it. Example: ask if they need human review or specific style constraints to meet policies.</div>
+            <div style="margin-top:8px;padding:10px;background:#F5F8FF;border-left:3px solid #4285F4;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;">“Підтвердіть, будь ласка: анти-AI policy для tech docs є hard requirement чи лише бажаний? Якщо hard — ми закладемо ‘human-in-the-loop’ approval and checklist-based verification as success criteria.”</div>
+        </div>
+    
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-radius:6px;margin-bottom:10px;">
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">"Unclear ROI: question about % performance/quality improvement in real production vs internal service prototypes."</div>
+            <div style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-bottom:10px;">price</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Handled:</b> Rep responded with conceptual definitions and discussed time-to-market, quality, and that ROI varies; didn’t provide evidence or benchmarks.</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b style="color:#434343;">Should have been:</b> Offer a pilot with baseline measurement (before/after) and pre-agreed KPI targets, plus reference case metrics if available. Example: “We’ll measure cycle time and rework rate on your next N release docs.”</div>
+            <div style="margin-top:8px;padding:10px;background:#F5F8FF;border-left:3px solid #4285F4;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;">“Замість абстрактних % — зробимо контрольований baseline: до пілоту знімаємо current cycle time/rework %, після пілоту порівнюємо. Який KPI для вас є ‘go’?”</div>
+        </div>
+    
+        </td>
+    </tr>
+
+    <!-- Next actions -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                Recommended Next Actions
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">1</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Send a written pilot plan: 2-week audit + first POC focused on tech writing flow/review (not generation-only), including required inputs and integration points (release state hook, summarization, DB metadata retrieval).</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Prospect asked to prioritize direction(s) and wants go/no-go; current proposal is too general—pilot must be operationalized.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ Within 24 hours.</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">2</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Provide an KPI sheet with agreed baselines and success thresholds (cycle time, rework %, quality/convention coverage, human-hours saved) for both TechWriting review agent and any limited legacy module.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Decision criteria and need-payoff were weak; the call lacked measurable targets.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ Within 48 hours.</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">3</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Schedule the ‘workshop per direction’ with named owners: TechWriting flow + Legacy feasibility constraints (context/docs/RAG/governance).</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">They explicitly proposed “одну воркшопу по кожному напрямку”; lock calendar to prevent drift.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ By end of next business day; confirm slots this week.</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">4</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Identify and confirm economic buyer + internal decision process steps (who signs, who must attend, what approval gates exist) before pilot start.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Economic buyer/decision process are missing; without this the ‘end of next week’ go/no-go may not land.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ Before the end-of-next-week decision window (at latest).</div>
+            </td>
+        </tr>
+    
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">5</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Ask for a baseline artifact set: ‘OldStandard’ module/function quality definition and TechWriting convention checklist + current process steps.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Rep requested baseline and process (“OldStandard… метрика бейзлайн… процес”) but they weren’t committed to provide specifics.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ By next workshop kickoff (or no later than 1 week).</div>
+            </td>
+        </tr>
+    
+            </table>
+        </td>
+    </tr>
+
+    <!-- Follow-up email draft -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                Follow-up Email Draft
+            </div>
+            <div style="background:#F5F8FF;border-radius:6px;padding:18px 20px;">
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b>Subject:</b></div>
+                <div style="font-family:Arial,sans-serif;font-size:14px;color:#434343;font-weight:bold;margin-bottom:14px;">Pilot plan for DBForge AI rollout (TechWriting review agent) + go/no-go by EOW</div>
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;white-space:pre-wrap;">Hi Anton, thanks for the deep technical discussion—especially around legacy context risks and your priority shift to TechWriting.
+
+Based on what you said, we should start with the smallest viable scope: a POC for the tech writer flow where the agent summarizes release changes and performs a checklist-style review for your documentation conventions (human-in-the-loop for final approval). This avoids legacy autonomy while still delivering measurable productivity gains.
+
+To finalize go/no-go by end of next week, can we align on: (1) current baseline cycle time + rework rate, (2) your “OldStandard”/quality criteria, and (3) who attends the decision? I’ll send a draft KPI sheet and pilot workflow tomorrow. Next step: workshop scheduling by [date].</div>
+            </div>
+        </td>
+    </tr>
+
+    <!-- Footer -->
+    <tr>
+        <td style="background:#F5F8FF;padding:20px 32px;text-align:center;">
+            <div style="font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;">
+                Generated by AI Call Analyst · <span style="color:#4285F4;font-weight:bold;">Data Science UA</span>
+            </div>
+            <div style="font-family:Arial,sans-serif;font-size:10px;color:#8A94A6;margin-top:4px;">
+                Participants: Anton Onufriienko, Oleksii Honcharov, Vic Gorlenko, Alexander Stoliarchuk, Kostiantyn Cherkashyn, Volodymyr Shynkarov, Oleksii Honcharov (DBForge), Anton Onufriienko (Head of Engineering / SITIO)
+            </div>
+        </td>
+    </tr>
+
+</table>
+
+</td></tr>
+</table>
+</body>
+</html>

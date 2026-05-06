@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Technical Call Analysis: Eligibility model failure analysis & mitigation plan (verification pass + retrieval prototype + grounding fixes)</title>
+</head>
+<body style="margin:0;padding:0;background:#F5F8FF;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F8FF;padding:30px 0;">
+<tr><td align="center">
+
+<table width="720" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(66,133,244,0.08);">
+
+    <!-- Header -->
+    <tr>
+        <td style="background:#4285F4;padding:28px 32px;">
+            <div style="font-family:Arial,sans-serif;color:#ffffff;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;opacity:0.85;margin-bottom:6px;">
+                Data Science UA · Technical Call Analysis
+            </div>
+            <div style="font-family:Arial,sans-serif;color:#ffffff;font-size:22px;font-weight:bold;line-height:1.3;">
+                Eligibility model failure analysis & mitigation plan (verification pass + retrieval prototype + grounding fixes)
+            </div>
+            <div style="font-family:Arial,sans-serif;color:#ffffff;font-size:12px;opacity:0.8;margin-top:8px;">
+                November 06, 2025 at 19:00 · 47 min · TECHNICAL
+            </div>
+        </td>
+    </tr>
+
+    <!-- TL;DR -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">TL;DR</div>
+            <div style="font-family:Arial,sans-serif;color:#434343;font-size:14px;line-height:1.6;">
+                Team alignment is good on root cause (fine-tuned LLM outputs are ungrounded), and there’s a feasible immediate mitigation: a verification pass plus deterministic temporal/recency and planned negation work. Biggest risk/ambiguity: the verification pass and temporal/negation additions may not fully address recall impacts and SLA/latency constraints, and monitoring definition isn’t fully specified. Top next action: finalize the verification-pass acceptance criteria (what counts as an evidence-quote match) and the production monitoring sampling design to prevent repeating the 23% discovery late in the loop.
+            </div>
+        </td>
+    </tr>
+
+    <!-- Snapshot -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">Call Snapshot</div>
+            <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="50%" style="padding-right:10px;vertical-align:top;">
+                        <div style="background:#F5F8FF;padding:14px;border-radius:6px;margin-bottom:10px;">
+                            <div style="font-family:Arial,sans-serif;color:#8A94A6;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Technical Context</div>
+                            <div style="font-family:Arial,sans-serif;color:#434343;font-size:13px;line-height:1.4;">Post-deployment evaluation of a clinical eligibility classification pipeline. Fine-tuned Llama 3.1 70B performs extraction, then a rule engine applies inclusion–exclusion logic. After a criterion-set change and model swap, clinical reviewers found high false-positive rate dominated by temporal confusion, negation failures, and critical hallucinated findings (evidence absent in EHR).</div>
+                        </div>
+                    </td>
+                    <td width="50%" style="padding-left:10px;vertical-align:top;">
+                        <div style="background:#F5F8FF;padding:14px;border-radius:6px;margin-bottom:10px;">
+                            <div style="font-family:Arial,sans-serif;color:#8A94A6;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Objective</div>
+                            <div style="font-family:Arial,sans-serif;color:#434343;font-size:13px;line-height:1.4;">Reduce trust and safety risk by lowering hallucination-driven false positives quickly (within next sprint), then structurally improve grounding via verification pass and evaluate retrieval-augmented approach vs re-fine-tuning with span annotations.</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div style="background:#F5F8FF;padding:14px;border-radius:6px;">
+                <div style="font-family:Arial,sans-serif;color:#8A94A6;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Systems & Stack Mentioned</div>
+                <div><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">Fine-tuned Llama 3.1 70B extraction model</span><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">Rule engine applying inclusion-exclusion logic</span><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">Proposed retrieval layer with vector DB (pgvector/Qdrant mentioned)</span><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">Vector database embeddings over EHR sections</span><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">Verification pass using another LLM to quote supporting EHR text (Claude/GPT-4o considered; default Llama 3.3 70B on EU infrastructure)</span><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">Temporal date constraint extraction (programmatic recency window)</span><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">Negation detection (NegSpacy/scispaCy/KB-BERT discussed)</span><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">Llama hosting on private GPU cluster in Stockholm; potential Claude on AWS Frankfurt flagged for residency contract terms</span></div>
+            </div>
+        </td>
+    </tr>
+
+    <!-- Scorecard -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">Scorecard · Overall 8/10</div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                <tr style="background:#F5F8FF;">
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;">Dimension</th>
+                    <th style="padding:10px 12px;text-align:center;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;width:80px;">Score</th>
+                    <th style="padding:10px 12px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;text-transform:uppercase;font-weight:bold;">Comment</th>
+                </tr>
+                
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Problem Clarity</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#34A853;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            9/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Clear failure modes quantified and decomposed into temporal confusion, negation failures, and ungrounded/hallucinated findings with concrete example: “there is no mention of LVEF anywhere… None. We searched the full text. The model just made it up.”</td>
+        </tr>
+        
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Solution Alignment</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#34A853;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            8/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Short-term plan directly targets the riskiest class (hallucinations) via “a verification pass… verify… by quoting the specific text from the EHR”. Medium-term plan evaluates structural grounding via retrieval-augmented prototype and/or span-level re-annotation.</td>
+        </tr>
+        
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Technical Depth</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            7/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Good discussion of grounding/labeling limitations and retrieval latency math. Missing specifics on verification-pass mechanics (quote matching method, thresholds) and evaluation protocol details for recall/precision beyond hallucination rate.</td>
+        </tr>
+        
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Requirement Completeness</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#FBBC04;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            6/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Most operational items captured (two-week prototype plan, SLA headroom, data residency). Still missing concrete acceptance criteria, monitoring definitions, and how temporal/negation changes integrate with the rule engine.</td>
+        </tr>
+        
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Risk Identification</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#34A853;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            8/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Explicitly flagged trust loss and patient safety: “A patient enrolled based on a hallucinated finding is a patient safety issue.” Also covered latency/SLA headroom and data residency constraints.</td>
+        </tr>
+        
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#434343;">Next Step Quality</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;background:#34A853;color:#ffffff;border-radius:12px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
+            8/10
+        </span>
+        </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E4E9F2;font-family:Arial,sans-serif;font-size:13px;color:#8A94A6;">Actionable workplan with owners and dates: “Week one— build verification pass… Weeks one through three— build retrieval prototype… Tuesday— Olena returns with negation plan… End of week three— present results”. Also called out sampling design ownership.</td>
+        </tr>
+        
+            </table>
+            <div style="margin-top:14px;padding:12px 16px;background:#F5F8FF;border-left:4px solid #4285F4;border-radius:4px;font-family:Arial,sans-serif;font-size:13px;color:#434343;font-style:italic;">
+                <b>Overall:</b> Strong alignment and pragmatic mitigation plan; primary gap is turning proposed ideas into testable acceptance criteria (quote verification, metrics, thresholds) and ensuring recall/latency/SLA are preserved.
+            </div>
+        </td>
+    </tr>
+
+    <!-- What went well -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">✓ What Went Well</div>
+            
+            <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #34A853;border-radius:6px;margin-bottom:10px;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">Root-cause breakdown of false positives into actionable categories with an evidence-absence example</div>
+                <div style="background:#F5F8FF;border-radius:4px;padding:10px 12px;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;margin-bottom:8px;">"“Three categories… Around 40… temporal confusion… About 30… negation failures… The remaining 25… the model is matching on findings that aren't in the record at all. Just hallucinating them.”"</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Why it matters:</b> Transforms a vague accuracy complaint into specific engineering targets (grounding vs temporal parsing vs negation handling), enabling targeted fixes and better prioritization.</div>
+            </div>
+            
+            <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #34A853;border-radius:6px;margin-bottom:10px;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">Clarified hallucination definition and provided concrete ungrounded output proof</div>
+                <div style="background:#F5F8FF;border-radius:4px;padding:10px 12px;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;margin-bottom:8px;">"“Generating. We pulled five examples… 'patient has documented LVEF below 35 percent'—… there is no mention of LVEF anywhere… None. We searched the full text. The model just made it up.”"</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Why it matters:</b> Validates safety severity and prevents the team from incorrectly attributing errors to synonymy or extraction bugs; supports the need for evidence-anchoring verification.</div>
+            </div>
+            
+            <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #34A853;border-radius:6px;margin-bottom:10px;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">Acknowledged training/labeling limitation that explains ungrounded behavior</div>
+                <div style="background:#F5F8FF;border-radius:4px;padding:10px 12px;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;margin-bottom:8px;">"“The labels included the criterion ID and a binary eligible-or-not flag. They did not include text spans pointing at the supporting evidence.”"</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Why it matters:</b> Directly links to the hypothesized failure mode: model learns eligibility patterns without learning proof, informing whether to choose spans vs retrieval.</div>
+            </div>
+            
+            <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #34A853;border-radius:6px;margin-bottom:10px;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">Immediate mitigation proposal focused on the most dangerous class (hallucinations)</div>
+                <div style="background:#F5F8FF;border-radius:4px;padding:10px 12px;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;margin-bottom:8px;">"“add a second pass that asks… to verify the decision by quoting the specific text from the EHR that supports it. If it can't produce a quote… flag… and route it to priority review.”"</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Why it matters:</b> Provides a fast, measurable safety improvement and a practical pathway while structural fixes are developed.</div>
+            </div>
+            
+            <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #34A853;border-radius:6px;margin-bottom:10px;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">Latency feasibility analysis for retrieval with explicit calculations</div>
+                <div style="background:#F5F8FF;border-radius:4px;padding:10px 12px;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;margin-bottom:8px;">"“30… criteria… 30 retrieval calls per patient times 3,000… roughly 90,000 queries… At 100ms… about 2.5 hours added to… 6… 8.5 total.”"</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Why it matters:</b> Prevents architectural changes from failing operationally; demonstrates engineering realism regarding overnight batch SLAs.</div>
+            </div>
+            
+            <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #34A853;border-radius:6px;margin-bottom:10px;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">Clear experimental plan to compare retrieval prototype vs current model on the same held-out gold set</div>
+                <div style="background:#F5F8FF;border-radius:4px;padding:10px 12px;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;margin-bottom:8px;">"“build… prototype on a subset—… 500 patients… compare its accuracy… compare… hallucination rate, recall, precision.”"</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Why it matters:</b> Avoids debating in abstractions; creates a decision-ready evidence base for choosing between span re-annotation vs retrieval.</div>
+            </div>
+            
+            <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #34A853;border-radius:6px;margin-bottom:10px;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">Captured data residency constraint early and resolved by defaulting to EU-hosted Llama</div>
+                <div style="background:#F5F8FF;border-radius:4px;padding:10px 12px;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;margin-bottom:8px;">"“EHR data cannot leave EU jurisdiction… default to Llama 3.3 70B on your existing infrastructure… Removes the data residency variable entirely.”"</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Why it matters:</b> Prevents late-stage compliance blockers and keeps evaluation moving.</div>
+            </div>
+            
+        </td>
+    </tr>
+
+    <!-- What went wrong -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">✗ What Went Wrong</div>
+            
+            <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #EA4335;border-radius:6px;margin-bottom:10px;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">Hallucination mitigation proposal lacks defined mechanics/acceptance criteria</div>
+                <div style="background:#FDECEA;border-radius:4px;padding:10px 12px;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;margin-bottom:8px;">"“verify… by quoting the specific text… If it can't produce a quote… flag… low-confidence”"</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Why it matters:</b> “Quote” success criteria (exact substring match vs semantic match, handling OCR/noise, multiple citations) are not specified; ambiguity can lead to inconsistent behavior and unreliable monitoring.</div>
+            </div>
+            
+            <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #EA4335;border-radius:6px;margin-bottom:10px;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">Confounding acknowledged but not fully addressed for the immediate decision-making</div>
+                <div style="background:#FDECEA;border-radius:4px;padding:10px 12px;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;margin-bottom:8px;">"“hallucination rate seems worse… We didn't measure it cleanly because we changed the criterion set at the same time, so it's confounded.”"</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Why it matters:</b> The team may over-attribute causes (swap vs criterion change) when selecting the long-term fix; they need a strategy to isolate variables (e.g., rerun historical cohorts with fixed criteria).</div>
+            </div>
+            
+            <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #EA4335;border-radius:6px;margin-bottom:10px;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">Negation scope is acknowledged as underestimated without a concrete timeline at first</div>
+                <div style="background:#FDECEA;border-radius:4px;padding:10px 12px;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;margin-bottom:8px;">"“Negation is going to be more work than I initially scoped. Let me park that.”"</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Why it matters:</b> Creates risk that negation failures remain a major driver of false positives after week-one fixes; the open item is deferred, but business impact may persist.</div>
+            </div>
+            
+            <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #EA4335;border-radius:6px;margin-bottom:10px;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">Recall/precision impact of verification pass is not quantitatively planned</div>
+                <div style="background:#FDECEA;border-radius:4px;padding:10px 12px;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;margin-bottom:8px;">"Verification pass… route it to priority review"</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Why it matters:</b> Routing to review may increase workload variance; without measuring net precision/recall and reviewer capacity, the “stop the bleeding” claim may not hold.</div>
+            </div>
+            
+            <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #EA4335;border-radius:6px;margin-bottom:10px;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:8px;">Model labeling strategy for date constraints integration isn’t fully specified</div>
+                <div style="background:#FDECEA;border-radius:4px;padding:10px 12px;font-family:Arial,sans-serif;font-size:12px;color:#434343;font-style:italic;margin-bottom:8px;">"“apply the criterion's recency window programmatically rather than relying on the model.”"</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Why it matters:</b> Requires confirming how dates are extracted, what happens when dates are missing/unclear, and how this interacts with rule engine logic; otherwise temporal confusion may persist.</div>
+            </div>
+            
+        </td>
+    </tr>
+
+    <!-- Missed technical questions -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">Missed Technical Questions</div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">What constitutes a “valid evidence quote” for the verification pass (exact span match, fuzzy matching, citation alignment, thresholds)?</div>
+                <div style="margin-bottom:6px;"><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">testing</span></div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Without a deterministic definition, the verification pass may rubber-stamp wrong evidence or falsely reject correct cases, harming precision/recall and reviewer workload.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> When Ihor proposed: “verify… by quoting the specific text… If it can't produce a quote…”</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">How will you measure the effect on recall/precision and overall review burden after introducing the verification pass (not just hallucination rate)?</div>
+                <div style="margin-bottom:6px;"><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">performance</span></div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> The business risk is trust loss and operational burden; focusing only on hallucination rate ignores temporal/negation and possible throughput changes.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> When Olena said: “ship verification now… visible improvement in the next sprint”</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">What is the integration point between extraction outputs and the rule engine—will verification operate on the extracted spans, intermediate claims, or final eligible/not eligible decision?</div>
+                <div style="margin-bottom:6px;"><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">architecture</span></div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Determines implementation complexity and whether the verification pass can truly confirm evidence anchoring.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> Right after confirming pipeline: “fine-tuned Llama… with the rule engine applying inclusion-exclusion logic”</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">For temporal confusion: how are “finding dates” represented in the model output, and what happens if multiple dates exist or no date is extracted?</div>
+                <div style="margin-bottom:6px;"><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">data</span></div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Temporal fixes depend on consistent date extraction; edge cases likely drive remaining errors.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> When they agreed: “date constraint check… extracted date… apply… recency window programmatically”</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">For Swedish negation: what data sources will be used for the half-day survey (existing Swedish datasets, multilingual transformers, prior clinical negation work), and do you have access rights?</div>
+                <div style="margin-bottom:6px;"><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">deployment</span></div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Legal/data access constraints can delay building the negation classifier; dataset availability determines feasibility.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> When Olena proposed returning Tuesday with “technical plan for negation… labeling scope estimate”</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">How will you prevent contamination between models in the retrieval prototype evaluation (e.g., retrieval index creation, embedding training)?</div>
+                <div style="margin-bottom:6px;"><span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">integration</span></div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b>Why:</b> Even if training cohorts differ, retrieval prototypes might ingest text that leaked via shared artifacts or preprocessing; need strict controls.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b>Best moment:</b> When Ihor raised contamination: “if we're testing… same 412… has seen during training”</div>
+            </td>
+        </tr>
+        
+            </table>
+        </td>
+    </tr>
+
+    <!-- Requirements -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">Requirements Extracted</div>
+            
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="50%" style="padding:0 6px 12px 0;vertical-align:top;">
+                
+        <div style="background:#F5F8FF;border-radius:6px;padding:14px 16px;height:100%;">
+            <div style="font-family:Arial,sans-serif;color:#8A94A6;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Functional</div>
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Compute cardiology trial eligibility using extraction from EHR and inclusion-exclusion rule engine.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Detect and route low-confidence eligibility decisions using a verification pass that checks for supporting EHR text quotes.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Apply criterion-specific temporal recency windows using extracted finding dates (programmatic check) to correct “temporal confusion”.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Implement negation handling for Swedish and English medical text (plan to survey, then build classifier if needed).</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Run retrieval-augmented prototype that retrieves relevant EHR passages and evaluates eligibility/grounding on a held-out gold set.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Establish production monitoring that samples cases and estimates hallucination rate with statistical power.</div>
+        </div>
+        
+            </td>
+            <td width="50%" style="padding:0 0 12px 6px;vertical-align:top;">
+                
+        <div style="background:#F5F8FF;border-radius:6px;padding:14px 16px;height:100%;">
+            <div style="font-family:Arial,sans-serif;color:#8A94A6;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Non-functional</div>
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Patient safety requirement: prevent ungrounded/hallucinated inclusion from reaching enrollment decisions.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Operational latency/SLA: current batch processes ~3,000 patients/night, ~6-hour pipeline; retrieval prototype must fit within overnight window (run 9pm–7am).</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Data residency/compliance: EHR data must remain in EU; prototypes/models must run in EU or locally deployable.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Trust/visibility: achieve measurable improvement in next sprint to maintain trial-lead confidence.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Scalability: retrieval and LLM inference must scale horizontally for sharded batch processing.</div>
+        </div>
+        
+            </td>
+        </tr>
+        <tr>
+            <td width="50%" style="padding:0 6px 0 0;vertical-align:top;">
+                
+        <div style="background:#F5F8FF;border-radius:6px;padding:14px 16px;height:100%;">
+            <div style="font-family:Arial,sans-serif;color:#8A94A6;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Constraints</div>
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Labeling budget/time: span-level annotation likely ~12k euros and adds 2–3 weeks re-training/validation.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Timebox: Week one verification + temporal technical readiness; week two production; weeks one–three retrieval prototype evaluation; Tuesday negation plan; end-of-week-three decision.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Swedish records ~80% of volume; negation solution must work for Swedish.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Verification pass requires clinical sign-off; adds ~3 days for sign-off.</div>
+        </div>
+        
+            </td>
+            <td width="50%" style="padding:0 0 0 6px;vertical-align:top;">
+                
+        <div style="background:#F5F8FF;border-radius:6px;padding:14px 16px;height:100%;">
+            <div style="font-family:Arial,sans-serif;color:#8A94A6;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Assumptions (unverified)</div>
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Fine-tuned Llama extraction is currently capable of extracting some evidence but sometimes hallucinates or misinterprets dates/negation.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Rule engine correctly applies logic given extracted attributes; errors primarily originate in extraction/interpretation and grounding.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Clinical-reviewed dataset of 412 patients is an appropriate held-out gold set for recall/precision and hallucination rate comparisons.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Retrieval prototype will embed and retrieve EHR sections relevant to each criterion without leaking external knowledge.</div><div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;margin-bottom:6px;">• Vector DB latency estimates (~50–100ms per retrieval query) are achievable in production.</div>
+        </div>
+        
+            </td>
+        </tr>
+    </table>
+    
+        </td>
+    </tr>
+
+    <!-- Risks (always visually loud) -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;background:#FFFCFA;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">⚠ Risks & Red Flags</div>
+            
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #EA4335;border-radius:6px;margin-bottom:10px;">
+            <div style="margin-bottom:8px;">
+                <span style="display:inline-block;padding:2px 8px;background:#FDECEA;color:#EA4335;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">high</span>
+                <span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">integration</span>
+            </div>
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">Verification pass may be nondeterministic/ambiguous without strict evidence-quote matching rules</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b style="color:#434343;">Evidence:</b> “verify… by quoting the specific text… If it can't produce a quote…” (no stated matching algorithm or thresholds).</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Mitigation:</b> Define acceptance criteria: exact span match vs fuzzy matching; require citation alignment (document offsets); log evidence spans; add automated tests with edge cases.</div>
+        </div>
+        
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #EA4335;border-radius:6px;margin-bottom:10px;">
+            <div style="margin-bottom:8px;">
+                <span style="display:inline-block;padding:2px 8px;background:#FDECEA;color:#EA4335;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">high</span>
+                <span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">performance</span>
+            </div>
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">Recall/precision could regress if verification pass overly filters outputs</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b style="color:#434343;">Evidence:</b> Verification changes routing to low-confidence/priority review; “helps… most dangerous category” but no plan to measure net recall/precision under time constraints.</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Mitigation:</b> Measure recall/precision and review burden on the 412 gold set and via production sampling; set explicit recall-loss thresholds for go/no-go.</div>
+        </div>
+        
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #FBBC04;border-radius:6px;margin-bottom:10px;">
+            <div style="margin-bottom:8px;">
+                <span style="display:inline-block;padding:2px 8px;background:#FEF7E0;color:#FBBC04;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">medium</span>
+                <span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">integration</span>
+            </div>
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">Temporal and negation fixes may be insufficient for Swedish clinical language patterns</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b style="color:#434343;">Evidence:</b> NegSpacy is English-trained; Swedish negation unclear: “I don’t know if anyone has built a negation layer on top of it… need to… translate patterns or train… ourselves.”</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Mitigation:</b> Use Tuesday negation plan with dataset/model audit; if building classifier, start with active learning using clinical reviewers’ labels.</div>
+        </div>
+        
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #FBBC04;border-radius:6px;margin-bottom:10px;">
+            <div style="margin-bottom:8px;">
+                <span style="display:inline-block;padding:2px 8px;background:#FEF7E0;color:#FBBC04;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">medium</span>
+                <span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">performance</span>
+            </div>
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">Retrieval prototype could blow SLA if real-world retrieval+LLM latency exceeds estimates</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b style="color:#434343;">Evidence:</b> “Tight headroom… If retrieval slows down… blow SLA… Worth thinking about whether we can parallelize.”</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Mitigation:</b> Benchmark retrieval latency at scale; precompute embeddings; parallelize per-patient and per-criterion where possible; implement caching and fallback to current pipeline if over budget.</div>
+        </div>
+        
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #FBBC04;border-radius:6px;margin-bottom:10px;">
+            <div style="margin-bottom:8px;">
+                <span style="display:inline-block;padding:2px 8px;background:#FEF7E0;color:#FBBC04;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">medium</span>
+                <span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">unrealistic_expectations</span>
+            </div>
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">Confounding between model swap and criterion set change complicates root-cause attribution</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b style="color:#434343;">Evidence:</b> “changed the criterion set at the same time, so it's confounded.”</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Mitigation:</b> Run offline re-evaluation: apply old criteria to new model outputs (and vice versa) on archived cohorts) to isolate effects.</div>
+        </div>
+        
+        <div style="padding:14px 16px;background:#ffffff;border:1px solid #E4E9F2;border-left:4px solid #34A853;border-radius:6px;margin-bottom:10px;">
+            <div style="margin-bottom:8px;">
+                <span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#34A853;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">low</span>
+                <span style="display:inline-block;padding:2px 8px;background:#F5F8FF;color:#4285F4;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;text-transform:uppercase;border-radius:4px;margin-right:4px;">integration</span>
+            </div>
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">Data residency/legal review may delay prototype model choice if not defaulted early</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b style="color:#434343;">Evidence:</b> Claude would require DPO verification: “need to verify… contracts terms…”</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Mitigation:</b> Default to EU-hosted Llama as agreed; document residency proof artifacts for stakeholders.</div>
+        </div>
+        
+        </td>
+    </tr>
+
+    <!-- Open questions -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">Open Questions — Need Resolution</div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">❓ What are the exact verification-pass rules for evidence grounding (match criteria, handling multiple matches, dealing with OCR errors/formatting differences)?</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b style="color:#434343;">Blocks:</b> Acceptance test for week-one production hardening; impacts trust and reviewer routing reliability.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Owner:</b> Technical team (Ihor/Per) with input from clinical lead/QA (Per’s biostatistician for metrics).</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">❓ How will temporal date extraction behave when the finding date is missing, ambiguous, or multiple dates exist (which date to use)?</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b style="color:#434343;">Blocks:</b> Correctness of temporal confusion fix and evaluation of residual error rates.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Owner:</b> Per (technical) + clinical reviewer lead (tie-breaking rules).</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">❓ What negation datasets/models are available for Swedish, and what labeled negation data must be produced (quantity/scope) by Tuesday?</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b style="color:#434343;">Blocks:</b> Whether negation can be completed in the near-term structural roadmap.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Owner:</b> Olena (survey + plan) and Per’s clinical team (labeling scope).</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">❓ For retrieval evaluation: will you run criterion-by-criterion retrieval (30 queries/patient) or optimize batching (e.g., retrieve once then filter) to reduce queries?</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b style="color:#434343;">Blocks:</b> Latency feasibility and cost; influences retrieval prototype design.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Owner:</b> Ihor (prototype architecture) + Per (ops constraints).</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">❓ Monitoring sampling: what sampling frame, stratification, and confidence intervals are required to detect hallucination rate regressions within a week or two?</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b style="color:#434343;">Blocks:</b> Ability to guarantee continuous trust and prevent late discovery.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Owner:</b> Per + biostatistician.</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:6px;">❓ Is the 412-patient gold set sufficient for statistically confident hallucination-rate comparisons between retrieval vs current model (especially after verification pass changes)?</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;"><b style="color:#434343;">Blocks:</b> Decision threshold (“meaningful margin”) validity.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;"><b style="color:#434343;">Owner:</b> Biostatistician (Per’s) + Olena (study design).</div>
+            </td>
+        </tr>
+        
+            </table>
+        </td>
+    </tr>
+
+    <!-- Next actions -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">Recommended Next Actions</div>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E9F2;border-radius:6px;overflow:hidden;">
+                
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">1</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Finalize verification-pass acceptance criteria and evidence-quote matching algorithm; define metrics (hallucination detection precision/recall) and logging outputs.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Prevents ambiguous implementation from undermining the main week-one safety mitigation.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ Before clinical sign-off; target end of Week 1.</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">2</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Implement production monitoring sampling plan with statistical power to detect hallucination-rate divergence within 1–2 weeks.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Avoids repeating late weekly-review discovery of 23% false positives.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ End of Week 2 (Per owns with biostatistician).</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">3</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Deliver temporal recency constraint integration details and edge-case handling (missing/multiple dates) into the rule engine pipeline.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Temporal confusion accounts for ~40/95 false positives; must be deterministic to reduce reviewer load.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ End of Week 1 for technical readiness; Week 2 production.</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">4</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Build retrieval prototype (using Llama 3.3 70B + EU-hosted retrieval) and run evaluation vs current model on the 412-patient gold set for hallucination rate/recall/precision.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Creates evidence for structural grounding decision by end of Week 3.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ Weeks 1–3; end of Week 3 report.</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">5</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Olena to return Tuesday with Swedish negation plan including technical approach and concrete labeling scope estimate with clinical team involvement.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Negation failures are ~30/95 and will persist unless addressed.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ Next Tuesday.</div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;width:30px;">
+                <div style="background:#4285F4;color:#ffffff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">6</div>
+            </td>
+            <td style="padding:12px;border-bottom:1px solid #E4E9F2;vertical-align:top;">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;font-weight:bold;margin-bottom:4px;">Define retrieval latency benchmark and caching/parallelization strategy to ensure 8.5-hour batch total stays within SLA.</div>
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:4px;">Retrieval headroom is tight; latency regression could break nightly schedule.</div>
+                <div style="font-family:Arial,sans-serif;font-size:11px;color:#4285F4;font-weight:bold;">⏱ During prototype build (Weeks 1–2).</div>
+            </td>
+        </tr>
+        
+            </table>
+        </td>
+    </tr>
+
+    <!-- Follow-up message draft -->
+    <tr>
+        <td style="padding:28px 32px;border-bottom:1px solid #E4E9F2;">
+            <div style="font-family:Arial,sans-serif;color:#4285F4;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">Follow-up Message Draft</div>
+            <div style="background:#F5F8FF;border-radius:6px;padding:18px 20px;">
+                <div style="font-family:Arial,sans-serif;font-size:12px;color:#8A94A6;margin-bottom:6px;"><b>Subject:</b></div>
+                <div style="font-family:Arial,sans-serif;font-size:14px;color:#434343;font-weight:bold;margin-bottom:14px;">Workplan confirmation: Week-1 verification pass + temporal recency + Week-1..3 retrieval eval; open items (evidence-quote criteria, monitoring, negation plan)</div>
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#434343;line-height:1.6;white-space:pre-wrap;">Hi both—
+
+Confirming what we agreed:
+1) Week 1: Build & complete (for clinical sign-off) the verification pass to validate eligibility decisions by requiring grounded EHR evidence quotes, and implement criterion-specific temporal recency windows programmatically (date constraint extraction from the pipeline).
+2) Week 2: Deploy verification pass + temporal fix to production.
+3) Weeks 1–3: Build a retrieval-augmented prototype using Llama 3.3 70B on our Stockholm infrastructure (EU-only) with a retrieval layer over EHR documents, and evaluate it vs the current fine-tuned Llama on the 412-patient clinical-reviewed gold set (hallucination rate, recall, precision). Present results and choose structural path by end of Week 3.
+4) Next Tuesday: Olena will return with a concrete Swedish negation plan (technical approach + labeling/data scope estimate), with clinical team involvement if dataset labeling is needed.
+5) Monitoring: Per owns the production monitoring sampling design (with biostatistician) so we can detect hallucination-rate divergence within ~1–2 weeks. Target: end of Week 2 design proposal.
+
+Open items to clarify before implementation:
+- Verification-pass acceptance criteria: exactly what constitutes a “quote that actually appears” (matching method/thresholds, handling multiple spans, OCR/formatting).
+- Temporal/date edge cases: missing/ambiguous/multiple dates handling and how outputs map into the rule engine.
+- Retrieval prototype query strategy to stay within SLA (batching/parallelization, caching).
+
+Thanks—will send the Notion workplan after the call as discussed.
+</div>
+            </div>
+        </td>
+    </tr>
+
+    <!-- Footer -->
+    <tr>
+        <td style="background:#F5F8FF;padding:20px 32px;text-align:center;">
+            <div style="font-family:Arial,sans-serif;font-size:11px;color:#8A94A6;">
+                Generated by AI Call Analyst · <span style="color:#4285F4;font-weight:bold;">Data Science UA</span>
+            </div>
+            <div style="font-family:Arial,sans-serif;font-size:10px;color:#8A94A6;margin-top:4px;">
+                Participants: Per Lindqvist, Olena Tkachenko, Ihor Kostiuk
+            </div>
+        </td>
+    </tr>
+
+</table>
+
+</td></tr>
+</table>
+</body>
+</html>
