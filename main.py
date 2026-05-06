@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
+import threading
 import warnings
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -16,6 +17,9 @@ from transcript import format_transcript
 warnings.filterwarnings("ignore", message="Pydantic serializer warnings")
 
 app = FastAPI()
+
+_processed_meetings: set[str] = set()
+_processed_lock = threading.Lock()
 
 
 @app.get("/")
@@ -33,6 +37,11 @@ def handle_meeting(
     expected = os.environ.get("WEBHOOK_SECRET")
     if expected and x_webhook_secret != expected:
         raise HTTPException(status_code=403, detail="Forbidden")
+
+    with _processed_lock:
+        if payload.meetingId in _processed_meetings:
+            return {"status": "already_processed"}
+        _processed_meetings.add(payload.meetingId)
 
     background_tasks.add_task(process_meeting, payload)
     return {"status": "processing"}

@@ -56,7 +56,12 @@ def send_html_email(
     context = ssl.create_default_context()
     
     SMTP_HOST = os.environ.get("SMTP_HOST")
-    SMTP_PORT = int(os.environ.get("SMTP_PORT")) 
+    if not SMTP_HOST:
+        raise RuntimeError("Missing SMTP_HOST environment variable.")
+    raw_port = os.environ.get("SMTP_PORT")
+    if not raw_port:
+        raise RuntimeError("Missing SMTP_PORT environment variable.")
+    SMTP_PORT = int(raw_port)
     
     if SMTP_PORT == 465:
         with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, context=context) as server:

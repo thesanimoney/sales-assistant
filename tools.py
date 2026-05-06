@@ -8,6 +8,7 @@ from utils import sales_report_to_html
 from utils import technical_report_to_html
 
 REPORTS_DIR = Path("reports")
+REPORTS_DIR.mkdir(exist_ok=True)
 
 @tool
 def define_meeting_parameters(tool_runtime: ToolRuntime, meeting_type: MeetingType, language: str) -> Command:
